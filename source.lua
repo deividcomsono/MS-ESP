@@ -145,15 +145,18 @@ end
 updateVariables();
 
 -- // Functions // --
-local function getFolder(name, parent)
+local function getFolder(name, parent, backup)
     assert(typeof(name) == "string", "Argument #1 must be a string.");
     assert(typeof(parent) == "Instance", "Argument #2 must be an Instance.");
 
     Library.Debug("Creating folder '" .. name .. "'.")
     local folder = parent:FindFirstChild(name);
     if folder == nil then
-        folder = Instance.new("Folder", parent);
+        folder = Instance.new("Folder");
         folder.Name = name;
+
+        local parented = pcall(function() folder.Parent = CoreGui; end);
+        if not parented and backup then folder.Parent = backup; end;
     end
     return folder;
 end
@@ -327,7 +330,7 @@ local function createDeleteFunction(TableName, TableIndex, Table)
 end
 
 -- // Setup ESP Info Table // --
-Library.Folders.Main = getFolder("__ESP_FOLDER", CoreGui);
+Library.Folders.Main = getFolder("__ESP_FOLDER", CoreGui, localPlayer.PlayerGui);
 Library.Folders.Billboards = getFolder("__BILLBOARDS_FOLDER", Library.Folders.Main);
 Library.Folders.Adornments = getFolder("__ADORNMENTS_FOLDER", Library.Folders.Main);
 Library.Folders.Highlights = getFolder("__HIGHLIGHTS_FOLDER", Library.Folders.Main);
