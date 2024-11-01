@@ -442,6 +442,7 @@ local Templates = {
     Billboard = {
         Name = "Instance",
         Model = nil,
+        TextModel = nil,
         Visible = true,
         MaxDistance = 5000,
         StudsOffset = Vector3.new(),
@@ -489,6 +490,8 @@ local Templates = {
     Highlight = {
         Name = "Instance",
         Model = nil,
+        TextModel = nil,
+
         Visible = true,
         MaxDistance = 5000,
         StudsOffset = Vector3.new(),
@@ -508,6 +511,8 @@ local Templates = {
     Adornment = {
         Name = "Instance",
         Model = nil,
+        TextModel = nil,
+
         Visible = true,
         MaxDistance = 5000,
         StudsOffset = Vector3.new(),
@@ -526,6 +531,8 @@ local Templates = {
     Outline = {
         Name = "Instance",
         Model = nil,
+        TextModel = nil,
+
         Visible = true,
         MaxDistance = 5000,
         StudsOffset = Vector3.new(),
@@ -598,6 +605,7 @@ function Library.ESP.Billboard(args)
     assert(typeof(args) == "table", "args must be a table.");
     args = Library.Validate(args, Templates.Billboard);
     assert(typeof(args.Model) == "Instance", "args.Model must be an Instance.");
+    args.TextModel = typeof(args.TextModel) == "Instance" and args.TextModel or args.Model;
 
     Library.Debug("Creating Billboard '" .. tostring(args.Name) .. "'...")
     -- // Instances // --
@@ -612,7 +620,7 @@ function Library.ESP.Billboard(args)
         Size = UDim2.new(0, 200, 0, 50),
         StudsOffset = args.StudsOffset,
 
-        Adornee = args.Model
+        Adornee = args.TextModel
     });
 
     local Text = createInstance("TextLabel", {
@@ -686,13 +694,16 @@ function Library.ESP.Billboard(args)
 
         local _Color = typeof(args.Color) == "Color3" and args.Color or BillboardTable.Settings.Color;
         local _TextSize = typeof(args.TextSize) == "number" and args.TextSize or BillboardTable.Settings.TextSize;
+        local _TextModel = typeof(args.TextModel) == "Instance" and args.TextModel or BillboardTable.Settings.TextModel;
 
         Text.TextColor3 = _Color;
-        Text.TextSize = _TextSize
+        Text.TextSize = _TextSize;
+        GUI.Adornee = _TextModel or BillboardTable.Settings.Model;
 
         if updateVariables ~= false then
-            BillboardTable.Settings.Color = _Color;
-            BillboardTable.Settings.TextSize = _TextSize;
+            BillboardTable.Settings.Color       = _Color;
+            BillboardTable.Settings.TextSize    = _TextSize;
+            BillboardTable.Settings.TextModel   = _TextModel;
 
             BillboardTable.Settings.MaxDistance = typeof(args.MaxDistance) == "number" and args.MaxDistance or BillboardTable.Settings.MaxDistance;
         end
@@ -948,9 +959,12 @@ function Library.ESP.Highlight(args)
     local BillboardTable = Library.ESP.Billboard({
         Name = args.Name,
         Model = args.Model,
+        TextModel = typeof(args.TextModel) == "Instance" and args.TextModel or nil,
+
         MaxDistance = args.MaxDistance,
         StudsOffset = args.StudsOffset,
         Color = args.TextColor,
+
         WasCreatedWithDifferentESP = true
     });
 
@@ -1015,28 +1029,31 @@ function Library.ESP.Highlight(args)
 
         local _FillColor = typeof(args.FillColor) == "Color3" and args.FillColor or HighlightTable.Settings.FillColor;
         local _OutlineColor = typeof(args.OutlineColor) == "Color3" and args.OutlineColor or HighlightTable.Settings.OutlineColor;
-        local _TextColor = typeof(args.TextColor) == "Color3" and args.TextColor or HighlightTable.Settings.TextColor;
 
         local _FillTransparency = typeof(args.FillTransparency) == "number" and args.FillTransparency or HighlightTable.Settings.FillTransparency;
         local _OutlineTransparency = typeof(args.OutlineTransparency) == "number" and args.OutlineTransparency or HighlightTable.Settings.OutlineTransparency;
 
+        local _TextColor = typeof(args.TextColor) == "Color3" and args.TextColor or HighlightTable.Settings.TextColor;
         local _TextSize = typeof(args.TextSize) == "number" and args.TextSize or HighlightTable.Settings.TextSize;
+        local _TextModel = typeof(args.TextModel) == "Instance" and args.TextModel or HighlightTable.Settings.TextModel;
 
         Highlight.FillColor = _FillColor;
         Highlight.OutlineColor = _OutlineColor;
-        BillboardTable.Update({ Color = _TextColor, TextSize = _TextSize }, updateVariables);
+        BillboardTable.Update({ Color = _TextColor, TextSize = _TextSize, TextModel = _TextModel }, updateVariables);
 
-        Highlight.FillTransparency = _FillTransparency
-        Highlight.OutlineTransparency = _OutlineTransparency
+        Highlight.FillTransparency = _FillTransparency;
+        Highlight.OutlineTransparency = _OutlineTransparency;
 
         if updateVariables ~= false then
             HighlightTable.Settings.FillColor           = _FillColor;
             HighlightTable.Settings.OutlineColor        = _OutlineColor;
-            HighlightTable.Settings.TextColor           = _TextColor;
 
             HighlightTable.Settings.FillTransparency    = _FillTransparency;
             HighlightTable.Settings.OutlineTransparency = _OutlineTransparency;
-            HighlightTable.Settings.TextSize = _TextSize
+
+            HighlightTable.Settings.TextColor           = _TextColor;
+            HighlightTable.Settings.TextSize            = _TextSize;
+            HighlightTable.Settings.TextModel           = _TextModel;
 
             HighlightTable.Settings.MaxDistance = typeof(args.MaxDistance) == "number" and args.MaxDistance or HighlightTable.Settings.MaxDistance;
         end
@@ -1090,9 +1107,12 @@ function Library.ESP.Adornment(args)
     local BillboardTable = Library.ESP.Billboard({
         Name = args.Name,
         Model = args.Model,
+        TextModel = typeof(args.TextModel) == "Instance" and args.TextModel or nil,
+
         MaxDistance = args.MaxDistance,
         StudsOffset = args.StudsOffset,
         Color = args.TextColor,
+
         WasCreatedWithDifferentESP = true
     });
 
@@ -1177,16 +1197,20 @@ function Library.ESP.Adornment(args)
         args = Library.Validate(args, settings);
 
         local _Color = typeof(args.Color) == "Color3" and args.Color or AdornmentTable.Settings.Color;
-        local _TextColor = typeof(args.TextColor) == "Color3" and args.TextColor or AdornmentTable.Settings.TextColor;
 
-        local _TextSize = typeof(args.TextSize) == "number" and args.TextSize or HighlightTable.Settings.TextSize;
+        local _TextColor = typeof(args.TextColor) == "Color3" and args.TextColor or AdornmentTable.Settings.TextColor;
+        local _TextSize = typeof(args.TextSize) == "number" and args.TextSize or AdornmentTable.Settings.TextSize;
+        local _TextModel = typeof(args.TextModel) == "Instance" and args.TextModel or AdornmentTable.Settings.TextModel;
 
         Adornment.Color3 = _Color;
-        BillboardTable.Update({ Color = _TextColor, TextSize = _TextSize }, updateVariables);
+        BillboardTable.Update({ Color = _TextColor, TextSize = _TextSize, TextModel = _TextModel }, updateVariables);
 
         if updateVariables ~= false then
             AdornmentTable.Settings.Color     = _Color;
+
+            AdornmentTable.Settings.TextSize  = _TextSize;
             AdornmentTable.Settings.TextColor = _TextColor;
+            AdornmentTable.Settings.TextModel = _TextModel;
 
             AdornmentTable.Settings.MaxDistance = typeof(args.MaxDistance) == "number" and args.MaxDistance or AdornmentTable.Settings.MaxDistance;
         end
@@ -1238,9 +1262,12 @@ function Library.ESP.Outline(args)
     local BillboardTable = Library.ESP.Billboard({
         Name = args.Name,
         Model = args.Model,
+        TextModel = typeof(args.TextModel) == "Instance" and args.TextModel or nil,
+
         MaxDistance = args.MaxDistance,
         StudsOffset = args.StudsOffset,
         Color = args.TextColor,
+
         WasCreatedWithDifferentESP = true
     });
 
@@ -1307,20 +1334,26 @@ function Library.ESP.Outline(args)
         local _BorderColor = typeof(args.BorderColor) == "Color3" and args.BorderColor or OutlineTable.Settings.BorderColor;
         local _Thickness = typeof(args.Thickness) == "number" and args.Thickness or OutlineTable.Settings.Thickness;
         local _Transparency = typeof(args.Transparency) == "number" and args.Transparency or OutlineTable.Settings.Transparency;
+
         local _TextColor = typeof(args.TextColor) == "Color3" and args.TextColor or OutlineTable.Settings.TextColor;
+        local _TextSize = typeof(args.TextSize) == "number" and args.TextSize or OutlineTable.Settings.TextSize;
+        local _TextModel = typeof(args.TextModel) == "Instance" and args.TextModel or OutlineTable.Settings.TextModel;
 
         Outline.SurfaceColor3 = _SurfaceColor;
         Outline.Color3 = _BorderColor;
         Outline.LineThickness = _Thickness;
         Outline.SurfaceTransparency = _Transparency;
-        BillboardTable.Update(_TextColor, updateVariables);
+        BillboardTable.Update({ Color = _TextColor, TextSize = _TextSize, TextModel = _TextModel }, updateVariables);
 
         if updateVariables ~= false then
             OutlineTable.Settings.SurfaceColor  = _SurfaceColor;
             OutlineTable.Settings.BorderColor   = _BorderColor;
             OutlineTable.Settings.Thickness     = _Thickness;
             OutlineTable.Settings.Transparency  = _Transparency;
+
             OutlineTable.Settings.TextColor     = _TextColor;
+            OutlineTable.Settings.TextSize      = _TextSize;
+            OutlineTable.Settings.TextModel     = _TextModel;
 
             OutlineTable.Settings.MaxDistance = typeof(args.MaxDistance) == "number" and args.MaxDistance or OutlineTable.Settings.MaxDistance;
         end
